@@ -8,3 +8,4 @@ Logs
 .env
 
 mongo
+postgres
