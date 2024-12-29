@@ -4,13 +4,15 @@ import { CheckService } from "../domain/use-case/check/check-service";
 import { SendEmailLog } from "../domain/use-case/email/send-email.log";
 import { FileSystemDataSource } from "../infrastructure/datasource/file-system.datasource";
 import { MongoLogDataSource } from "../infrastructure/datasource/mongo-log.datasource";
+import { PostgresLogDataSource } from "../infrastructure/datasource/postgres-log.datasource";
 import { LogRepositoryImpl } from "../infrastructure/repositories/log.repository.impl";
 import { CronServices } from "./cron/cron.services";
 import { EmailService } from "./email/email.services";
 
 const logRepository = new LogRepositoryImpl(
-  new FileSystemDataSource()
+  // new FileSystemDataSource()
   // new MongoLogDataSource()
+  new PostgresLogDataSource()
 );
 
 const emailService = new EmailService();
@@ -23,12 +25,16 @@ export class Server {
     //   "",
     // ]);
 
-    CronServices.createJob("*/5 * * * * *", () => {
-      new CheckService(
-        logRepository,
-        () => console.log("sucesss"),
-        (error) => console.log(error)
-      ).execute("https://google.com/");
-    });
+    const logs = await logRepository.getLogs(LogSeverityLevel.high);
+
+    console.log("logs", logs);
+
+    // CronServices.createJob("*/5 * * * * *", () => {
+    //   new CheckService(
+    //     logRepository,
+    //     () => console.log("sucesss"),
+    //     (error) => console.log(error)
+    //   ).execute("https://google.com/");
+    // });
   }
 }
